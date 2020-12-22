@@ -1,21 +1,19 @@
 import React, {useState, useEffect} from 'react';
-import { io } from "socket.io-client";
-import Chat from './components/chat';
+
+import { useChat } from './contexts/chat';
+import ChatList from './pages/chatList';
+// import Chat from './pages/chat';
 
 function App() {
+  const { initChatService } = useChat();
   
-  const [response, setResponse] = useState("");
-
   useEffect(() => {
-    const socket = io('http://localhost:3333');
-    socket.on("FromAPI", (data: any) => {
-      setResponse(data);
-    });
+    initChatService();
   }, [])
 
   return (
     <div className="App">
-      <Chat />
+      <ChatList />
     </div>
   );
 }
