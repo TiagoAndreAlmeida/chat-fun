@@ -1,19 +1,55 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
+import SideMenu from './containers/Sidemenu';
 
-import { useChat } from './contexts/chat';
-import ChatList from './pages/chatList';
-// import Chat from './pages/chat';
+import { useChat, IUser } from './contexts/chat';
+import MainContent from './containers/Content';
+
+import './style.css';
+import GeralChat from './components/InputChat';
+import SingInModal from './components/SinginModal';
+
+interface IChatMessage {
+  user: IUser,
+  message: string
+}
 
 function App() {
-  const { initChatService } = useChat();
-  
+  const { socket, user } = useChat();
+
+  const [messageList, setMessageList] = useState<IChatMessage[]>([]);
+
   useEffect(() => {
-    initChatService();
   }, [])
+
+  useEffect(() => {
+    if(socket){
+      addEventListener();
+    }
+  }, [socket])
+
+  const addEventListener = () => {
+    socket?.on("geral", (data: IChatMessage) => {
+      setMessageList(prevData => [...prevData, data]);
+    });
+  }
+
+  console.log(messageList)
 
   return (
     <div className="App">
-      <ChatList />
+      <SideMenu />
+      <MainContent>
+        <div style={{ flex: 1 }}>
+          {messageList.map((mgs, index) => (
+            <div key={index}>
+              <strong>{mgs.user.name}: </strong>
+              <span>{mgs.message}</span>
+            </div>
+          ))}
+        </div>
+        <GeralChat />
+      </MainContent>
+      {user ? null : <SingInModal /> }
     </div>
   );
 }

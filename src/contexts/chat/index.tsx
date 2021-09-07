@@ -4,27 +4,36 @@ import React, {
 import { io, Socket } from "socket.io-client";
 
 interface ChatContextData {
+  user: IUser | null;
   socket: Socket | null;
-  initChatService(): void;
+  initChatService(name: string): void;
+}
+
+export interface IUser {
+  name: string;
 }
 
 const ChatContext = createContext<ChatContextData>({} as ChatContextData);
 
 export const ChatProvider: React.FC = ({children}) => {
 
+  const [user, setUser] = useState<IUser|null>(null)
   const [socket, setSocket] = useState<Socket|null>(null);
 
-  const initChatService = () => {
-    const _socket = io('http://localhost:3333');
+  const initChatService = (name: string) => {
+    const _socket = io('http://localhost:5000', {
+      auth: {
+        name
+      }
+    });
     setSocket(_socket);
-    // socket.on("FromAPI", (data: any) => {
-    //   console.log(data);
-    // });
+    setUser({...user, name});
   }
 
   return (
     <ChatContext.Provider 
     value={{
+      user,
       socket,
       initChatService
     }}>
